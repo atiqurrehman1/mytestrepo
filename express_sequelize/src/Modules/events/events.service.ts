@@ -1,12 +1,12 @@
 import Event from './entities/event.entity';
-
+import Workshop from './entities/workshop.entity';
+import { Op } from 'sequelize';
 
 export class EventsService {
 
   async getWarmupEvents() {
     return await Event.findAll();
   }
-
   /* TODO: complete getEventsWithWorkshops so that it returns all events including the workshops
     Requirements:
     - maximum 2 sql queries
@@ -85,7 +85,17 @@ export class EventsService {
      */
 
   async getEventsWithWorkshops() {
-    throw new Error('TODO task 1');
+    return await Event.findAll({
+      attributes: ['id', 'name', 'createdAt'],
+      include: [
+        {
+          model: Workshop,
+          as: "workshop",
+          attributes: ["id", "start", "end", "eventId", "name", "createdAt"],
+          duplicating: false,
+        }
+      ],
+    })
   }
 
   /* TODO: complete getFutureEventWithWorkshops so that it returns events with workshops, that have not yet started
@@ -155,6 +165,19 @@ export class EventsService {
     ```
      */
   async getFutureEventWithWorkshops() {
-    throw new Error('TODO task 2');
+    return await Event.findAll({
+      attributes: ['id', 'name', 'createdAt'],
+      include: [
+        {
+          model: Workshop,
+          as: "workshop",
+          attributes: ["id", "start", "end", "eventId", "name", "createdAt"],
+          where: {
+            start :{   [Op.gt]: new Date(), }
+          },
+          duplicating: false,
+        }
+      ],
+    })
   }
 }
